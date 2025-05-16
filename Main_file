@@ -1,0 +1,32 @@
+from langchain_groq import ChatGroq
+from langchain_core.prompts import PromptTemplate
+from langchain_core.output_parsers import StrOutputParser
+from dotenv import load_dotenv
+
+load_dotenv()
+
+llm  = ChatGroq(
+     model="llama-3.1-8b-instant"
+)
+
+first_prompt = PromptTemplate(
+    template=" You are an expert support assistance, Please provide the detail report on the given {topic}",
+    input_variables=["topic"]
+)
+
+second_prompt = PromptTemplate(
+    template= "Your an expert support assistance, Please provide the main key point from the given text \n {text}",
+    input_variables=["text"]
+)
+
+string_parser = StrOutputParser()
+
+sequential_chain = first_prompt | llm |string_parser | second_prompt | llm | string_parser
+
+query = input("Enter the topic : ")
+
+sequential_chain_output = sequential_chain.invoke({'topic':query})
+
+print(sequential_chain_output)
+
+sequential_chain.get_graph().print_ascii()
